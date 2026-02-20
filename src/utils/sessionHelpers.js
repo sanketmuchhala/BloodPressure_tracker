@@ -62,11 +62,14 @@ export function validateReading(reading) {
  * @returns {Promise<Object>} - Created session object
  */
 export async function saveSession(sessionData, readings) {
-  // Calculate averages
-  const averages = calculateAverages(readings);
-  if (!averages) {
+  // Calculate averages from individual readings
+  const autoAverages = calculateAverages(readings);
+  if (!autoAverages) {
     throw new Error('No valid readings to save');
   }
+
+  // Use overrideAvg if provided (user edited the computed average)
+  const averages = sessionData.overrideAvg || autoAverages;
 
   try {
     // Step 1: Insert session with averages
@@ -75,7 +78,7 @@ export async function saveSession(sessionData, readings) {
       .insert({
         user_id: SINGLE_USER_ID,
         session_at: sessionData.timestamp,
-        reading_count: averages.count,
+        reading_count: averages.count ?? autoAverages.count,
         avg_systolic: averages.systolic,
         avg_diastolic: averages.diastolic,
         avg_pulse: averages.pulse,
@@ -98,7 +101,7 @@ export async function saveSession(sessionData, readings) {
         systolic: parseInt(r.systolic),
         diastolic: parseInt(r.diastolic),
         pulse: parseInt(r.pulse),
-        photo_path: null, // Individual readings don't have photos
+        photo_path: null,
       }));
 
     const { error: readingsError } = await supabase
@@ -117,6 +120,7 @@ export async function saveSession(sessionData, readings) {
     throw error;
   }
 }
+
 
 /**
  * Fetch all sessions with their individual readings
