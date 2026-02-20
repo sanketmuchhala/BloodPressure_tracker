@@ -8,7 +8,7 @@ import { InsightsCard } from '../components/InsightsCard';
 import { useLang } from '../i18n/useLang';
 import { supabase, SINGLE_USER_ID } from '../utils/supabase';
 import { fetchSessions } from '../utils/sessionHelpers';
-import { getBPCategory } from '../utils/bpCategory';
+import { getBPCategoryLabeled } from '../utils/bpCategory';
 
 /**
  * Logs Page
@@ -122,14 +122,14 @@ export function Logs() {
           <div className="bg-surface rounded-2xl border border-border p-12 text-center space-y-4">
             <div className="text-6xl">💓</div>
             <div>
-              <p className="text-lg font-semibold text-text">No readings yet</p>
-              <p className="text-text-secondary text-sm mt-1">Add your first blood pressure reading to start tracking your health.</p>
+              <p className="text-lg font-semibold text-text">{t('logs.empty')}</p>
+              <p className="text-text-secondary text-sm mt-1">{t('logs.emptyDesc')}</p>
             </div>
             <button
               onClick={() => navigate('/entry')}
               className="inline-flex items-center gap-2 bg-primary text-white rounded-xl px-5 py-2.5 font-semibold hover:bg-primary-dark transition-all duration-150"
             >
-              + Add First Reading
+              + {t('logs.emptyBtn')}
             </button>
           </div>
         ) : (
@@ -153,7 +153,7 @@ export function Logs() {
                       onClick={() => handleDelete(log.id)}
                       className="w-full h-full bg-red-500 text-white text-sm font-semibold flex items-center justify-center rounded-r-2xl"
                     >
-                      Delete
+                      {t('logs.delete')}
                     </button>
                   </div>
 
@@ -162,7 +162,7 @@ export function Logs() {
                     className={`bg-surface border border-border rounded-2xl p-4 transition-transform duration-200 ${swipedId === log.id ? '-translate-x-20' : 'translate-x-0'}`}
                   >
                     {(() => {
-                      const cat = getBPCategory(log.systolic, log.diastolic);
+                      const cat = getBPCategoryLabeled(log.systolic, log.diastolic, t);
                       return (
                         <div className="flex items-start justify-between gap-3">
                           <div className="space-y-1.5 flex-1">

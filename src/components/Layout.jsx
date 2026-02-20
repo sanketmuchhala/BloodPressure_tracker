@@ -23,8 +23,8 @@ export function Layout({ children }) {
         <Navigation />
       </header>
 
-      {/* Main Content - key forces re-render on language change */}
-      <main key={lang} className="max-w-2xl mx-auto px-4 py-6 transition-opacity duration-300">
+      {/* Main Content */}
+      <main className="max-w-2xl mx-auto px-4 py-6 transition-opacity duration-300">
         {children}
       </main>
     </div>

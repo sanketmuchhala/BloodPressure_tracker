@@ -1,14 +1,11 @@
 export const strings = {
   gu: {
-    // App title
     appTitle: 'ગૌરવ બ્લડ પ્રેશર લોગ્સ',
 
-    // Navigation
     navEntry: 'એન્ટ્રી',
     navLogs: 'લોગ્સ',
     langToggle: 'ગુ',
 
-    // Login page
     login: {
       title: 'લોગિન',
       emailPlaceholder: 'તમારું ઈમેઈલ',
@@ -17,8 +14,6 @@ export const strings = {
       checkEmailDesc: 'અમે તમને લોગિન લિંક મોકલી છે. કૃપા કરીને તમારું ઈમેઈલ તપાસો.',
       invalidEmail: 'કૃપા કરીને માન્ય ઈમેઈલ દાખલ કરો',
       error: 'લોગિન નિષ્ફળ. ફરી પ્રયાસ કરો.',
-
-      // NEW STRINGS FOR AUTH TABS
       signInTab: 'સાઇન ઇન',
       signUpTab: 'સાઇન અપ',
       magicLinkTab: 'મેજિક લિંક',
@@ -38,15 +33,14 @@ export const strings = {
         signup: 'સાઇન અપ નિષ્ફળ. ફરી પ્રયાસ કરો.',
         passwordShort: 'પાસવર્ડ ઓછામાં ઓછો ૬ અક્ષરોનો હોવો જોઈએ',
         authFailed: 'પ્રમાણીકરણ નિષ્ફળ. ફરી પ્રયાસ કરો.',
-      }
+      },
     },
 
-    // Entry page
     entry: {
       title: 'નવી એન્ટ્રી',
       systolic: 'ઉપરનું (Uparnu)',
       diastolic: 'નીચેનું (Neechenu)',
-      pulse: 'નાડી (Pulse)',
+      pulse: 'નાડી (Nadi)',
       readingTime: 'રીડિંગ સમય',
       takePhoto: 'ફોટો લો',
       retakePhoto: 'ફોટો ફરીથી લો',
@@ -54,33 +48,61 @@ export const strings = {
       save: 'સેવ કરો',
       saving: 'સેવ કરી રહ્યું છે...',
       required: 'જરૂરી',
-
-      // OCR status
       ocrIdle: 'ફોટો લીધા પછી OCR ચલાવો',
       ocrProcessing: 'OCR પ્રોસેસ કરી રહ્યું છે...',
       ocrComplete: 'શોધાયેલ',
       ocrFailed: 'OCR નિષ્ફળ. મેન્યુઅલી દાખલ કરો.',
-
-      // Success/Error
       saveSuccess: 'એન્ટ્રી સફળતાપૂર્વક સેવ થઈ!',
       saveError: 'એન્ટ્રી સેવ કરવામાં નિષ્ફળ. ફરી પ્રયાસ કરો.',
       validationError: 'કૃપા કરીને બધી જરૂરી ફીલ્ડ ભરો',
-
-      // OCR confidence
+      at: 'at',
+      photo: 'ફોટો',
+      optional: 'વૈકલ્પિક',
       confidenceHigh: 'ઉચ્ચ',
       confidenceMedium: 'મધ્યમ',
       confidenceLow: 'નીચું',
       confidenceNone: 'નથી',
-      photo: 'ફોટો',
-      optional: 'વૈકલ્પિક',
-      at: 'at',
+
+      // Measurement tip banner
+      tipAccuracy: 'સૌથી સચોટ માપ માટે:',
+      tipText: 'હાઈ ઓળખો: ૫ મિનિટ શાંત બેસો · ૩૦ મિનિટ પહેલાં ચા/કોફી/કસરત ન કરો · ૨-૩ રીડિંગ લો',
+      tipDismiss: 'ટીપ્સ છુપાવો',
+
+      // Status
+      readyToRecord: 'રેકોર્ડ કરવા તૈયાર',
+      readingsRecorded_one: '{{count}} રીડિંગ રેકોર્ડ',
+      readingsRecorded_other: '{{count}} રીડિંગ્સ રેકોર્ડ',
+
+      // Running average card
+      runningAverage: 'ચાલુ સરેરાશ',
+      reading_one: 'રીડિંગ',
+      reading_other: 'રીડિંગ્સ',
+      savedToSession: 'Save દબાવ્યા પછી session average માં સેવ થશે',
+
+      // Input form
+      enterReading: 'રીડિંગ {{num}} નાખો',
+      fillAllFields: 'ત્રણેય ફીલ્ડ ભરો.',
+      outOfRange: 'શ્રેણી બહાર: SYS ૫૦–૨૫૦ · DIA ૩૦–૧૫૦ · PUL ૩૦–૨૦૦',
+      addReading: 'રીડિંગ ઉમેરો',
+      addAtLeastOne: 'પહેલા ઓછામાં ઓછું એક રીડિંગ ઉમેરો.',
+
+      // Entries list header
+      readingsAdded_one: '{{count}} રીડિંગ ઉમેર્યું',
+      readingsAdded_other: '{{count}} રીડિંગ્સ ઉમેર્યા',
+      addMore: '← વધુ ઉમેરો',
+      done: 'પૂર્ણ',
+
+      // Save buttons
+      saveToLog: 'Log માં સેવ કરો',
+      saveReadings_one: '{{count}} રીડિંગ Log માં સેવ',
+      saveReadings_other: '{{count}} રીડિંગ્સ Log માં સેવ',
+
       errors: {
         noPhoto: 'ફોટો નથી',
         imageError: 'ફોટો લોડ કરવામાં ભૂલ',
       },
     },
 
-    // Session page
     session: {
       title: 'રીડિંગ સેશન',
       startSession: 'સેશન શરૂ કરો',
@@ -96,18 +118,43 @@ export const strings = {
       individualReadings: 'વ્યક્તિગત રીડિંગ્સ',
     },
 
-    // Logs page
     logs: {
       title: 'લોગ્સ',
       bp: 'બી.પી.',
       pulse: 'નાડી',
-      empty: 'લોગ્સ નથી. એન્ટ્રી ઉમેરો!',
+      empty: 'કોઈ રીડિંગ નથી',
+      emptyDesc: 'તમારા પ્રથમ બ્લડ પ્રેશર રીડિંગ ઉમેરો.',
+      emptyBtn: 'પ્રથમ રીડિંગ ઉમેરો',
       loadError: 'લોગ્સ લોડ કરવામાં નિષ્ફળ',
       viewPhoto: 'ફોટો જુઓ',
       closePhoto: 'બંધ કરો',
+      delete: 'ડિલીટ',
     },
 
-    // Common
+    // Insights card
+    insights: {
+      todayStatus: 'આજની સ્થિતિ',
+      readingsToday_one: '{{count}} રીડિંગ આજે',
+      readingsToday_other: '{{count}} રીડિંગ્સ આજે',
+      noReadingsToday: 'આજે હજી રીડિંગ નથી',
+      higherThanYesterday: 'ગઈ કાલ કરતાં વધારે',
+      lowerThanYesterday: 'ગઈ કાલ કરતાં ઓછું',
+      similarToYesterday: 'ગઈ કાલ જેટલું',
+      dayStreak: '{{count}} દિવસ streak',
+      usuallyMorning: 'સામાન્ય રીતે સવારે',
+      usuallyEvening: 'સામાન્ય રીતે સાંજે',
+      yesterday: 'ગઈ કાલ',
+    },
+
+    // AHA category labels
+    bpCategory: {
+      normal: 'સામાન્ય',
+      elevated: 'ઉચ્ચ',
+      stage1: 'હાઈ BP સ્ટેજ 1',
+      stage2: 'હાઈ BP સ્ટેજ 2',
+      crisis: 'Hypertensive Crisis',
+    },
+
     loading: 'લોડ કરી રહ્યું છે...',
     error: 'ભૂલ',
     tryAgain: 'ફરી પ્રયાસ કરો',
@@ -116,15 +163,12 @@ export const strings = {
   },
 
   en: {
-    // App title
     appTitle: 'Gaurav Blood Pressure Logs',
 
-    // Navigation
     navEntry: 'Entry',
     navLogs: 'Logs',
     langToggle: 'En',
 
-    // Login page
     login: {
       title: 'Login',
       emailPlaceholder: 'Your email',
@@ -133,8 +177,6 @@ export const strings = {
       checkEmailDesc: 'We sent you a login link. Please check your email.',
       invalidEmail: 'Please enter a valid email',
       error: 'Login failed. Please try again.',
-
-      // NEW STRINGS FOR AUTH TABS
       signInTab: 'Sign In',
       signUpTab: 'Sign Up',
       magicLinkTab: 'Magic Link',
@@ -154,10 +196,9 @@ export const strings = {
         signup: 'Sign up failed. Please try again.',
         passwordShort: 'Password must be at least 6 characters',
         authFailed: 'Authentication failed. Please try again.',
-      }
+      },
     },
 
-    // Entry page
     entry: {
       title: 'New Entry',
       systolic: 'Systolic (Uparnu)',
@@ -170,33 +211,55 @@ export const strings = {
       save: 'Save',
       saving: 'Saving...',
       required: 'Required',
-
-      // OCR status
       ocrIdle: 'Run OCR after taking photo',
       ocrProcessing: 'Processing OCR...',
       ocrComplete: 'Detected',
       ocrFailed: 'OCR failed. Enter manually.',
-
-      // Success/Error
       saveSuccess: 'Entry saved successfully!',
       saveError: 'Failed to save entry. Please try again.',
       validationError: 'Please fill all required fields',
-
-      // OCR confidence
+      at: 'at',
+      photo: 'Photo',
+      optional: 'Optional',
       confidenceHigh: 'High',
       confidenceMedium: 'Medium',
       confidenceLow: 'Low',
       confidenceNone: 'None',
-      photo: 'Photo',
-      optional: 'Optional',
-      at: 'at',
+
+      tipAccuracy: 'For best accuracy:',
+      tipText: 'sit quietly for 5 min · no caffeine/exercise 30 min before · take 2–3 readings',
+      tipDismiss: 'Dismiss',
+
+      readyToRecord: 'Ready to record',
+      readingsRecorded_one: '{{count}} reading recorded',
+      readingsRecorded_other: '{{count}} readings recorded',
+
+      runningAverage: 'Running Average',
+      reading_one: 'reading',
+      reading_other: 'readings',
+      savedToSession: 'Saved to session average when you hit Save',
+
+      enterReading: 'Enter Reading {{num}}',
+      fillAllFields: 'Fill in all three fields.',
+      outOfRange: 'Out of range: SYS 50–250 · DIA 30–150 · PUL 30–200',
+      addReading: 'Add Reading',
+      addAtLeastOne: 'Add at least one reading first.',
+
+      readingsAdded_one: '{{count}} reading added',
+      readingsAdded_other: '{{count}} readings added',
+      addMore: '← Add more',
+      done: 'Done',
+
+      saveToLog: 'Save to Log',
+      saveReadings_one: 'Save {{count}} Reading to Log',
+      saveReadings_other: 'Save {{count}} Readings to Log',
+
       errors: {
         noPhoto: 'No photo',
         imageError: 'Error loading photo',
       },
     },
 
-    // Session page
     session: {
       title: 'Reading Session',
       startSession: 'Start Session',
@@ -212,18 +275,41 @@ export const strings = {
       individualReadings: 'Individual Readings',
     },
 
-    // Logs page
     logs: {
       title: 'Logs',
       bp: 'B.P.',
       pulse: 'Pulse',
-      empty: 'No logs yet. Add an entry!',
+      empty: 'No readings yet',
+      emptyDesc: 'Add your first blood pressure reading to start tracking your health.',
+      emptyBtn: 'Add First Reading',
       loadError: 'Failed to load logs',
       viewPhoto: 'View Photo',
       closePhoto: 'Close',
+      delete: 'Delete',
     },
 
-    // Common
+    insights: {
+      todayStatus: "Today's Status",
+      readingsToday_one: '{{count}} reading today',
+      readingsToday_other: '{{count}} readings today',
+      noReadingsToday: 'No readings today yet',
+      higherThanYesterday: 'Higher than yesterday',
+      lowerThanYesterday: 'Lower than yesterday',
+      similarToYesterday: 'Similar to yesterday',
+      dayStreak: '{{count}} day streak',
+      usuallyMorning: 'Usually logs in the morning',
+      usuallyEvening: 'Usually logs in the evening',
+      yesterday: 'Yesterday',
+    },
+
+    bpCategory: {
+      normal: 'Normal',
+      elevated: 'Elevated',
+      stage1: 'High BP Stage 1',
+      stage2: 'High BP Stage 2',
+      crisis: 'Hypertensive Crisis',
+    },
+
     loading: 'Loading...',
     error: 'Error',
     tryAgain: 'Try Again',

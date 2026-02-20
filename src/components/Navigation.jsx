@@ -20,14 +20,13 @@ export function Navigation() {
   return (
     <nav className="flex items-center justify-between px-4 py-3 bg-surface border-b border-border">
       {/* Left: Navigation tabs */}
-      <div className="flex gap-2 transition-opacity duration-300" key={lang}>
+      <div className="flex gap-2 transition-opacity duration-300">
         <NavLink
           to="/entry"
           className={({ isActive }) =>
-            `px-4 py-2 rounded-lg font-medium transition-all duration-300 min-h-[44px] flex items-center ${
-              isActive
-                ? 'text-primary border-b-2 border-primary font-semibold'
-                : 'text-text-secondary hover:text-text'
+            `px-4 py-2 rounded-lg font-medium transition-all duration-300 min-h-[44px] flex items-center ${isActive
+              ? 'text-primary border-b-2 border-primary font-semibold'
+              : 'text-text-secondary hover:text-text'
             }`
           }
         >
@@ -36,10 +35,9 @@ export function Navigation() {
         <NavLink
           to="/logs"
           className={({ isActive }) =>
-            `px-4 py-2 rounded-lg font-medium transition-all duration-300 min-h-[44px] flex items-center ${
-              isActive
-                ? 'text-primary border-b-2 border-primary font-semibold'
-                : 'text-text-secondary hover:text-text'
+            `px-4 py-2 rounded-lg font-medium transition-all duration-300 min-h-[44px] flex items-center ${isActive
+              ? 'text-primary border-b-2 border-primary font-semibold'
+              : 'text-text-secondary hover:text-text'
             }`
           }
         >

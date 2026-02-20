@@ -4,7 +4,7 @@ import { PlusIcon, XMarkIcon, CheckIcon, InformationCircleIcon } from '@heroicon
 import { Layout } from '../components/Layout';
 import { useLang } from '../i18n/useLang';
 import { calculateAverages, saveSession } from '../utils/sessionHelpers';
-import { getBPCategory } from '../utils/bpCategory';
+import { getBPCategoryLabeled } from '../utils/bpCategory';
 
 export function Entry() {
   const { t } = useLang();
@@ -25,9 +25,8 @@ export function Entry() {
     return () => clearInterval(id);
   }, []);
 
-  // Live average derived from entries
   const liveAvg = useMemo(() => calculateAverages(entries), [entries]);
-  const avgCat = liveAvg ? getBPCategory(liveAvg.systolic, liveAvg.diastolic) : null;
+  const avgCat = liveAvg ? getBPCategoryLabeled(liveAvg.systolic, liveAvg.diastolic, t) : null;
 
   const isValid = ({ systolic, diastolic, pulse }) => {
     const s = parseInt(systolic), d = parseInt(diastolic), p = parseInt(pulse);
@@ -42,10 +41,10 @@ export function Entry() {
   const handleAdd = () => {
     setInputError('');
     if (!input.systolic || !input.diastolic || !input.pulse) {
-      setInputError('Fill in all three fields.'); return;
+      setInputError(t('entry.fillAllFields')); return;
     }
     if (!isValid(input)) {
-      setInputError('Out of range: SYS 50–250 · DIA 30–150 · PUL 30–200'); return;
+      setInputError(t('entry.outOfRange')); return;
     }
     setEntries(prev => [...prev, { ...input, readingAt: new Date().toISOString() }]);
     setInput({ systolic: '', diastolic: '', pulse: '' });
@@ -56,7 +55,7 @@ export function Entry() {
   const removeEntry = (i) => setEntries(prev => prev.filter((_, idx) => idx !== i));
 
   const handleSaveAll = async () => {
-    if (entries.length === 0) { setSaveError('Add at least one reading first.'); return; }
+    if (entries.length === 0) { setSaveError(t('entry.addAtLeastOne')); return; }
     setSaveError('');
     setSaving(true);
     try {
@@ -70,24 +69,27 @@ export function Entry() {
     }
   };
 
+  // Helpers for pluralish strings
+  const readingWord = (n) => n === 1 ? t('entry.reading_one') : t('entry.reading_other');
+
   return (
     <Layout>
       <div className="space-y-4">
 
         <h2 className="text-2xl font-bold text-text">{t('entry.title')}</h2>
 
-        {/* ── Measurement tip (collapsible) ─────────────────────────────── */}
+        {/* ── Measurement tip ─────────────────────────────────────────────── */}
         {tipOpen && (
           <div className="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl p-3">
             <InformationCircleIcon className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
             <div className="flex-1 text-sm text-blue-800">
-              <span className="font-semibold">For best accuracy: </span>
-              sit quietly for 5 min · no caffeine/exercise 30 min before · take 2–3 readings
+              <span className="font-semibold">{t('entry.tipAccuracy')} </span>
+              {t('entry.tipText')}
             </div>
             <button
               onClick={() => setTipOpen(false)}
               className="text-blue-400 hover:text-blue-600 shrink-0"
-              aria-label="Dismiss tip"
+              aria-label={t('entry.tipDismiss')}
             >
               <XMarkIcon className="w-4 h-4" />
             </button>
@@ -100,18 +102,19 @@ export function Entry() {
           <div className="text-sm text-text-secondary mt-1">{fmtDate(now)}</div>
           <div className="mt-2 inline-flex items-center gap-1.5 text-xs text-green-600 bg-green-50 px-3 py-1 rounded-full">
             <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse inline-block" />
-            {entries.length === 0 ? 'Ready to record' : `${entries.length} reading${entries.length > 1 ? 's' : ''} recorded`}
+            {entries.length === 0
+              ? t('entry.readyToRecord')
+              : t('entry.readingsRecorded_other').replace('{{count}}', entries.length)}
           </div>
         </div>
 
-        {/* ── Live Running Average (with AHA category) ─────────────────────── */}
+        {/* ── Running Average ──────────────────────────────────────────────── */}
         {liveAvg && avgCat && (
           <div className={`border-2 rounded-2xl p-4 ${avgCat.border} ${avgCat.bg}`}>
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-semibold text-text-secondary uppercase tracking-wide">
-                Running Average · {liveAvg.count} reading{liveAvg.count > 1 ? 's' : ''}
+                {t('entry.runningAverage')} · {liveAvg.count} {readingWord(liveAvg.count)}
               </span>
-              {/* AHA badge */}
               <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border ${avgCat.bg} ${avgCat.text} ${avgCat.border}`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${avgCat.dot}`} />
                 {avgCat.label}
@@ -130,16 +133,16 @@ export function Entry() {
               ))}
             </div>
             <div className="text-xs text-text-secondary text-center mt-2 opacity-70">
-              Saved to session average when you hit Save
+              {t('entry.savedToSession')}
             </div>
           </div>
         )}
 
-        {/* ── Phase 1: Input Form ──────────────────────────────────────────── */}
+        {/* ── Input Form ──────────────────────────────────────────────────── */}
         {phase === 'adding' && (
           <div className="bg-surface border border-border rounded-2xl p-5 space-y-4 shadow-sm">
             <div className="text-sm font-medium text-text-secondary">
-              {entries.length === 0 ? 'Enter Reading 1' : `Enter Reading ${entries.length + 1}`}
+              {t('entry.enterReading').replace('{{num}}', entries.length + 1)}
             </div>
             <div className="grid grid-cols-3 gap-3">
               {[
@@ -169,7 +172,7 @@ export function Entry() {
               className="w-full flex items-center justify-center gap-2 bg-primary/10 text-primary border-2 border-primary rounded-xl px-4 py-3 font-semibold hover:bg-primary hover:text-white transition-all duration-200"
             >
               <PlusIcon className="w-5 h-5" />
-              Add Reading
+              {t('entry.addReading')}
             </button>
           </div>
         )}
@@ -179,17 +182,18 @@ export function Entry() {
           <div className="space-y-2">
             <div className="flex items-center justify-between px-1">
               <span className="text-sm font-medium text-text-secondary">
-                {entries.length} {entries.length === 1 ? 'reading' : 'readings'} added
+                {(entries.length === 1 ? t('entry.readingsAdded_one') : t('entry.readingsAdded_other'))
+                  .replace('{{count}}', entries.length)}
               </span>
               {phase === 'review' && (
                 <button type="button" onClick={() => { setPhase('adding'); setSaveError(''); }}
                   className="text-sm text-primary font-medium hover:underline">
-                  ← Add more
+                  {t('entry.addMore')}
                 </button>
               )}
             </div>
             {entries.map((e, i) => {
-              const cat = getBPCategory(e.systolic, e.diastolic);
+              const cat = getBPCategoryLabeled(e.systolic, e.diastolic, t);
               return (
                 <div key={i} className="flex items-center justify-between bg-surface border border-border rounded-xl px-4 py-3">
                   <div className="flex items-center gap-3">
@@ -200,7 +204,6 @@ export function Entry() {
                     <span className="text-sm text-text-secondary">♥ {e.pulse}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    {/* Per-entry category dot */}
                     <span className={`hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${cat.bg} ${cat.text} ${cat.border}`}>
                       <span className={`w-1.5 h-1.5 rounded-full ${cat.dot}`} />
                       {cat.label}
@@ -221,13 +224,13 @@ export function Entry() {
           <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-error text-sm">{saveError}</div>
         )}
 
-        {/* ── Action Buttons ───────────────────────────────────────────────── */}
+        {/* ── Action Buttons ─────────────────────────────────────────────── */}
         {phase === 'adding' ? (
           <div className="flex gap-3">
             <button
               type="button"
               onClick={() => {
-                if (entries.length === 0) { setSaveError('Add at least one reading first.'); return; }
+                if (entries.length === 0) { setSaveError(t('entry.addAtLeastOne')); return; }
                 setSaveError('');
                 setPhase('review');
               }}
@@ -235,7 +238,7 @@ export function Entry() {
               className="flex-1 bg-surface border-2 border-border text-text-secondary rounded-xl px-4 py-3 font-medium hover:border-primary hover:text-primary transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               <CheckIcon className="w-4 h-4" />
-              Done
+              {t('entry.done')}
             </button>
             <button
               type="button"
@@ -243,7 +246,11 @@ export function Entry() {
               disabled={saving || entries.length === 0}
               className="flex-[2] bg-primary text-white rounded-xl px-4 py-3 font-semibold hover:bg-primary-dark active:scale-95 transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {saving ? t('entry.saving') : `Save to Log${entries.length > 0 ? ` (${entries.length})` : ''}`}
+              {saving
+                ? t('entry.saving')
+                : entries.length > 0
+                  ? t('entry.saveReadings_other').replace('{{count}}', entries.length)
+                  : t('entry.saveToLog')}
             </button>
           </div>
         ) : (
@@ -253,7 +260,10 @@ export function Entry() {
             disabled={saving}
             className="w-full bg-primary text-white rounded-xl px-6 py-4 text-lg font-semibold hover:bg-primary-dark active:scale-95 transition-all duration-150 disabled:opacity-40"
           >
-            {saving ? t('entry.saving') : `Save ${entries.length} ${entries.length === 1 ? 'Reading' : 'Readings'} to Log`}
+            {saving
+              ? t('entry.saving')
+              : (entries.length === 1 ? t('entry.saveReadings_one') : t('entry.saveReadings_other'))
+                .replace('{{count}}', entries.length)}
           </button>
         )}
 
