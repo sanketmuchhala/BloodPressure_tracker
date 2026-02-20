@@ -3,6 +3,7 @@ import { ChartBarIcon } from '@heroicons/react/24/outline';
 import { Layout } from '../components/Layout';
 import { ImageModal } from '../components/ImageModal';
 import { SessionCard } from '../components/SessionCard';
+import { BPChart } from '../components/BPChart';
 import { useLang } from '../i18n/useLang';
 import { supabase, SINGLE_USER_ID } from '../utils/supabase';
 import { fetchSessions } from '../utils/sessionHelpers';
@@ -114,6 +115,9 @@ export function Logs() {
     <Layout>
       <div className="space-y-6">
         <h2 className="text-2xl font-bold text-text">{t('logs.title')}</h2>
+
+        {/* BP Trend Chart */}
+        <BPChart logs={logs} />
 
         {error && (
           <div className="text-error text-sm bg-red-50 border border-red-200 rounded-lg p-3">
