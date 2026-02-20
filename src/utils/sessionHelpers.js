@@ -97,7 +97,7 @@ export async function saveSession(sessionData, readings) {
       .map((r) => ({
         user_id: SINGLE_USER_ID,
         session_id: session.id,
-        reading_at: session.session_at,
+        reading_at: r.readingAt || session.session_at,
         systolic: parseInt(r.systolic),
         diastolic: parseInt(r.diastolic),
         pulse: parseInt(r.pulse),
