@@ -18,8 +18,6 @@ import { supabase, SINGLE_USER_ID } from '../utils/supabase';
 export function Entry() {
   const { t } = useLang();
   const navigate = useNavigate();
-  const fileInputRef = useRef(null);
-
   // Mode toggle state: 'single' or 'session' (default to session per user preference)
   const [mode, setMode] = useState('session');
 
@@ -86,8 +84,8 @@ export function Entry() {
               type="button"
               onClick={() => setMode('session')}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-150 ${mode === 'session'
-                  ? 'bg-primary text-white'
-                  : 'text-text-secondary hover:text-text'
+                ? 'bg-primary text-white'
+                : 'text-text-secondary hover:text-text'
                 }`}
             >
               {t('session.sessionMode')}
@@ -96,8 +94,8 @@ export function Entry() {
               type="button"
               onClick={() => setMode('single')}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-150 ${mode === 'single'
-                  ? 'bg-primary text-white'
-                  : 'text-text-secondary hover:text-text'
+                ? 'bg-primary text-white'
+                : 'text-text-secondary hover:text-text'
                 }`}
             >
               {t('session.singleMode')}
