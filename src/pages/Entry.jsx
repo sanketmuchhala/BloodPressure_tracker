@@ -7,7 +7,7 @@ import { calculateAverages, saveSession } from '../utils/sessionHelpers';
 import { getBPCategoryLabeled } from '../utils/bpCategory';
 
 export function Entry() {
-  const { t } = useLang();
+  const { t, formatTs } = useLang();
   const navigate = useNavigate();
 
   const [phase, setPhase] = useState('adding');
@@ -34,9 +34,9 @@ export function Entry() {
       && s >= 50 && s <= 250 && d >= 30 && d <= 150 && p >= 30 && p <= 200;
   };
 
-  const fmtClock = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  const fmtDate = (d) => d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-  const fmtTime = (iso) => new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const fmtClock = (d) => formatTs(d, { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const fmtDate = (d) => formatTs(d, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+  const fmtTime = (iso) => formatTs(new Date(iso), { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
   const handleAdd = () => {
     setInputError('');

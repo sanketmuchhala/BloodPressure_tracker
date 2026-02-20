@@ -4,12 +4,12 @@ import { useLang } from '../i18n/useLang';
 import { getBPCategoryLabeled } from '../utils/bpCategory';
 
 export function SessionCard({ session, onPhotoClick }) {
-  const { t } = useLang();
+  const { t, formatTs } = useLang();
   const [expanded, setExpanded] = useState(false);
 
   const sessionDate = new Date(session.session_at);
-  const formattedDate = sessionDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-  const formattedTime = sessionDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  const formattedDate = formatTs(sessionDate, { year: 'numeric', month: 'short', day: 'numeric' });
+  const formattedTime = formatTs(sessionDate, { hour: '2-digit', minute: '2-digit' });
 
   const avgCat = getBPCategoryLabeled(session.avg_systolic, session.avg_diastolic, t);
 

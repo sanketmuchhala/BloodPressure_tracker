@@ -43,7 +43,24 @@ export function LangProvider({ children }) {
         return value || key;
     }, [currentStrings]);
 
-    const ctx = useMemo(() => ({ lang, setLang, toggleLang, t }), [lang, setLang, toggleLang, t]);
+    /**
+     * Format a Date using the active locale.
+     * In Gujarati: words (month/weekday/AM-PM) are Gujarati, digits stay Arabic.
+     * In English: standard en-US formatting.
+     *
+     * @param {Date} date
+     * @param {Intl.DateTimeFormatOptions} options  — same as toLocale* options
+     * @returns {string}
+     */
+    const formatTs = useCallback((date, options = {}) => {
+        if (lang === 'gu') {
+            // 'gu-IN-u-nu-latn' — Gujarati locale, Latin (Arabic) numerals
+            return date.toLocaleString('gu-IN-u-nu-latn', options);
+        }
+        return date.toLocaleString('en-US', options);
+    }, [lang]);
+
+    const ctx = useMemo(() => ({ lang, setLang, toggleLang, t, formatTs }), [lang, setLang, toggleLang, t, formatTs]);
 
     return <LangContext.Provider value={ctx}>{children}</LangContext.Provider>;
 }

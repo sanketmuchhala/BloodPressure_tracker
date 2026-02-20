@@ -17,7 +17,7 @@ import { getBPCategoryLabeled } from '../utils/bpCategory';
  * • Swipe left on mobile to reveal Delete
  */
 export function Logs() {
-  const { t } = useLang();
+  const { t, formatTs } = useLang();
   const navigate = useNavigate();
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -76,7 +76,7 @@ export function Logs() {
   };
 
   const formatDateTime = (ds) =>
-    new Date(ds).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    formatTs(new Date(ds), { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
   // ── Swipe handlers ────────────────────────────────────────────────────────
   const onTouchStart = (e, id) => {

@@ -3,6 +3,7 @@ import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
     Legend, ResponsiveContainer, ReferenceLine,
 } from 'recharts';
+import { useLang } from '../i18n/useLang';
 
 /**
  * BPChart
@@ -41,6 +42,7 @@ function CustomTooltip({ active, payload, label }) {
 
 export function BPChart({ logs }) {
     const [range, setRange] = useState(0); // index into RANGES
+    const { formatTs } = useLang();
 
     // Build chart data from logs filtered by range
     const chartData = useMemo(() => {
@@ -74,12 +76,12 @@ export function BPChart({ logs }) {
         // Format x-axis label
         const formatLabel = (ts) => {
             if (days === 0) {
-                // Today: HH:MM
-                return ts.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                // Today: HH:MM [AM/PM]
+                return formatTs(ts, { hour: '2-digit', minute: '2-digit' });
             }
-            // Multi-day: Mon 12:30, etc.
-            return ts.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' +
-                ts.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            // Multi-day: Mon 12:30 / somvar 12:30 etc.
+            return formatTs(ts, { month: 'short', day: 'numeric' }) + ' ' +
+                formatTs(ts, { hour: '2-digit', minute: '2-digit' });
         };
 
         return points.map((p) => ({
