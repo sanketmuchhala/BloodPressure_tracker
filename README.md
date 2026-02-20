@@ -83,6 +83,8 @@ Click **En / ગુ** in the navigation bar. Language state lives in a **React C
 
 ## Project Structure
 
+For a detailed visual overview of the system architecture, data flow, and database models, please see the [Architecture Guide](ARCHITECTURE.md).
+
 ```
 BloodPressure_tracker/
 ├── src/
