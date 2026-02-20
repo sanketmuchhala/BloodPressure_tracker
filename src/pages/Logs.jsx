@@ -1,42 +1,41 @@
-import { useState, useEffect } from 'react';
-import { ChartBarIcon } from '@heroicons/react/24/outline';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Layout } from '../components/Layout';
 import { ImageModal } from '../components/ImageModal';
 import { SessionCard } from '../components/SessionCard';
 import { BPChart } from '../components/BPChart';
+import { InsightsCard } from '../components/InsightsCard';
 import { useLang } from '../i18n/useLang';
 import { supabase, SINGLE_USER_ID } from '../utils/supabase';
 import { fetchSessions } from '../utils/sessionHelpers';
+import { getBPCategory } from '../utils/bpCategory';
 
 /**
  * Logs Page
- * - Displays both sessions (with averaged readings) and single readings
- * - Fetches last 100 sessions and 200 individual readings
- * - Merges and sorts by timestamp
- * - Uses signed URLs for photo display
- * - Click thumbnail to view full-size in modal
+ * • Shows insights card, BP chart, then log list
+ * • Category badge on every single reading
+ * • Swipe left on mobile to reveal Delete
  */
 export function Logs() {
   const { t } = useLang();
+  const navigate = useNavigate();
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedPhoto, setSelectedPhoto] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  // id of any reading currently swiped open
+  const [swipedId, setSwipedId] = useState(null);
+  // touch tracking
+  const touchStartX = useRef(null);
 
-  useEffect(() => {
-    fetchLogs();
-  }, []);
+  useEffect(() => { fetchLogs(); }, []);
 
   const fetchLogs = async () => {
     setLoading(true);
     setError('');
-
     try {
-      // Fetch sessions
       const sessions = await fetchSessions();
-
-      // Fetch individual readings (only those without session_id)
       const { data: individualReadings, error: fetchError } = await supabase
         .from('bp_logs')
         .select('*')
@@ -44,37 +43,23 @@ export function Logs() {
         .is('session_id', null)
         .order('reading_at', { ascending: false })
         .limit(200);
+      if (fetchError) throw fetchError;
 
-      if (fetchError) {
-        throw fetchError;
-      }
-
-      // Generate signed URLs for individual readings
       const readingsWithPhotos = await Promise.all(
         individualReadings.map(async (log) => {
           if (log.photo_path) {
             try {
-              const { data: signedUrlData } = await supabase.storage
-                .from('bp-photos')
-                .createSignedUrl(log.photo_path, 3600);
-
-              return { ...log, photoUrl: signedUrlData?.signedUrl || null, type: 'single' };
-            } catch (err) {
-              console.error('Error generating signed URL:', err);
-              return { ...log, photoUrl: null, type: 'single' };
-            }
+              const { data } = await supabase.storage.from('bp-photos').createSignedUrl(log.photo_path, 3600);
+              return { ...log, photoUrl: data?.signedUrl || null, type: 'single' };
+            } catch { return { ...log, photoUrl: null, type: 'single' }; }
           }
           return { ...log, photoUrl: null, type: 'single' };
         })
       );
 
-      // Merge and sort by timestamp
-      const allLogs = [...sessions, ...readingsWithPhotos].sort((a, b) => {
-        const timeA = new Date(a.session_at || a.reading_at);
-        const timeB = new Date(b.session_at || b.reading_at);
-        return timeB - timeA;
-      });
-
+      const allLogs = [...sessions, ...readingsWithPhotos].sort((a, b) =>
+        new Date(b.session_at || b.reading_at) - new Date(a.session_at || a.reading_at)
+      );
       setLogs(allLogs);
     } catch (err) {
       console.error('Error fetching logs:', err);
@@ -84,27 +69,33 @@ export function Logs() {
     }
   };
 
-  const formatDateTime = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+  const handleDelete = async (id) => {
+    setSwipedId(null);
+    const { error: delErr } = await supabase.from('bp_logs').delete().eq('id', id);
+    if (!delErr) setLogs(prev => prev.filter(l => l.id !== id));
   };
 
-  const handlePhotoClick = (photoUrl) => {
-    setSelectedPhoto(photoUrl);
-    setIsModalOpen(true);
+  const formatDateTime = (ds) =>
+    new Date(ds).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+  // ── Swipe handlers ────────────────────────────────────────────────────────
+  const onTouchStart = (e, id) => {
+    touchStartX.current = e.touches[0].clientX;
+    if (swipedId && swipedId !== id) setSwipedId(null);
+  };
+  const onTouchEnd = (e, id) => {
+    if (touchStartX.current === null) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (diff > 60) setSwipedId(id);       // swipe left → reveal delete
+    else if (diff < -30) setSwipedId(null); // swipe right → close
+    touchStartX.current = null;
   };
 
   if (loading) {
     return (
       <Layout>
-        <div className="text-center py-12">
-          <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent mb-4"></div>
+        <div className="text-center py-16">
+          <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent mb-4" />
           <p className="text-text-secondary">{t('loading')}</p>
         </div>
       </Layout>
@@ -113,78 +104,84 @@ export function Logs() {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-5">
         <h2 className="text-2xl font-bold text-text">{t('logs.title')}</h2>
 
-        {/* BP Trend Chart */}
+        {/* Insights */}
+        <InsightsCard logs={logs} />
+
+        {/* Chart */}
         <BPChart logs={logs} />
 
         {error && (
-          <div className="text-error text-sm bg-red-50 border border-red-200 rounded-lg p-3">
-            {error}
-          </div>
+          <div className="text-error text-sm bg-red-50 border border-red-200 rounded-lg p-3">{error}</div>
         )}
 
+        {/* ── Empty state ─────────────────────────────────────────────────── */}
         {logs.length === 0 ? (
-          <div className="bg-surface rounded-2xl shadow-md border border-border p-12 text-center">
-            <ChartBarIcon className="w-24 h-24 text-primary mx-auto mb-4" />
-            <p className="text-text-secondary">{t('logs.empty')}</p>
+          <div className="bg-surface rounded-2xl border border-border p-12 text-center space-y-4">
+            <div className="text-6xl">💓</div>
+            <div>
+              <p className="text-lg font-semibold text-text">No readings yet</p>
+              <p className="text-text-secondary text-sm mt-1">Add your first blood pressure reading to start tracking your health.</p>
+            </div>
+            <button
+              onClick={() => navigate('/entry')}
+              className="inline-flex items-center gap-2 bg-primary text-white rounded-xl px-5 py-2.5 font-semibold hover:bg-primary-dark transition-all duration-150"
+            >
+              + Add First Reading
+            </button>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {logs.map((log) =>
               log.type === 'session' ? (
-                <SessionCard
-                  key={log.id}
-                  session={log}
-                  onPhotoClick={handlePhotoClick}
-                />
+                <SessionCard key={log.id} session={log} onPhotoClick={(url) => { setSelectedPhoto(url); setIsModalOpen(true); }} />
               ) : (
+                /* ── Individual reading card with swipe-to-delete ── */
                 <div
                   key={log.id}
-                  className="bg-surface rounded-2xl shadow-md border border-border p-4 hover:shadow-lg transition-shadow duration-200"
+                  className="relative overflow-hidden rounded-2xl"
+                  onTouchStart={(e) => onTouchStart(e, log.id)}
+                  onTouchEnd={(e) => onTouchEnd(e, log.id)}
                 >
-                  <div className="flex gap-4">
-                    {/* Photo thumbnail */}
-                    {log.photoUrl && (
-                      <button
-                        onClick={() => handlePhotoClick(log.photoUrl)}
-                        className="flex-shrink-0"
-                      >
-                        <img
-                          src={log.photoUrl}
-                          alt="BP reading"
-                          className="w-20 h-20 rounded-xl object-cover hover:opacity-80 transition-opacity duration-150"
-                        />
-                      </button>
-                    )}
+                  {/* Delete button revealed on swipe */}
+                  <div
+                    className={`absolute inset-y-0 right-0 flex items-center transition-all duration-200 ${swipedId === log.id ? 'w-20 opacity-100' : 'w-0 opacity-0'}`}
+                  >
+                    <button
+                      onClick={() => handleDelete(log.id)}
+                      className="w-full h-full bg-red-500 text-white text-sm font-semibold flex items-center justify-center rounded-r-2xl"
+                    >
+                      Delete
+                    </button>
+                  </div>
 
-                    {/* Log details */}
-                    <div className="flex-1 space-y-2">
-                      <div className="text-sm text-text-secondary">
-                        {formatDateTime(log.reading_at)}
-                      </div>
-
-                      <div className="flex gap-4 flex-wrap">
-                        <div>
-                          <span className="text-sm text-text-secondary">
-                            {t('logs.bp')}:{' '}
-                          </span>
-                          <span className="text-base font-medium text-text">
-                            {log.systolic}/{log.diastolic}
+                  {/* Card content */}
+                  <div
+                    className={`bg-surface border border-border rounded-2xl p-4 transition-transform duration-200 ${swipedId === log.id ? '-translate-x-20' : 'translate-x-0'}`}
+                  >
+                    {(() => {
+                      const cat = getBPCategory(log.systolic, log.diastolic);
+                      return (
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="space-y-1.5 flex-1">
+                            <div className="text-xs text-text-secondary">{formatDateTime(log.reading_at)}</div>
+                            <div className="flex items-baseline gap-3">
+                              <span className="text-2xl font-bold text-text tabular-nums">
+                                {log.systolic}/{log.diastolic}
+                              </span>
+                              <span className="text-sm text-text-secondary">♥ {log.pulse}</span>
+                            </div>
+                          </div>
+                          {/* AHA Category badge */}
+                          <span className={`shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold border ${cat.bg} ${cat.text} ${cat.border}`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${cat.dot}`} />
+                            {cat.label}
                           </span>
                         </div>
-
-                        <div>
-                          <span className="text-sm text-text-secondary">
-                            {t('logs.pulse')}:{' '}
-                          </span>
-                          <span className="text-base font-medium text-text">
-                            {log.pulse}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+                      );
+                    })()}
                   </div>
                 </div>
               )
@@ -193,12 +190,7 @@ export function Logs() {
         )}
       </div>
 
-      {/* Image Modal */}
-      <ImageModal
-        imageUrl={selectedPhoto}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
+      <ImageModal imageUrl={selectedPhoto} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </Layout>
   );
 }
