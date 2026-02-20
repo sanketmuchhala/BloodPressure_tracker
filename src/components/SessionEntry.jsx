@@ -1,10 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CameraIcon, PlusIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useLang } from '../i18n/useLang';
-import { supabase, SINGLE_USER_ID } from '../utils/supabase';
-import { compressImage, fileToDataURL } from '../utils/imageCompression';
-import { performOCR } from '../utils/ocr';
 import { calculateAverages, saveSession } from '../utils/sessionHelpers';
 
 /**
@@ -15,7 +12,6 @@ import { calculateAverages, saveSession } from '../utils/sessionHelpers';
 export function SessionEntry() {
   const { t } = useLang();
   const navigate = useNavigate();
-  const fileInputRef = useRef(null);
 
   // Session state
   const [readings, setReadings] = useState([
@@ -27,13 +23,6 @@ export function SessionEntry() {
     return now.toISOString().slice(0, 16);
   });
 
-  // Photo state (one photo for entire session)
-  const [photo, setPhoto] = useState(null);
-  const [photoPreview, setPhotoPreview] = useState('');
-
-  // OCR state
-  const [ocrStatus, setOcrStatus] = useState('idle');
-
   // UI state
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -44,91 +33,6 @@ export function SessionEntry() {
     const avg = calculateAverages(readings);
     setAverages(avg);
   }, [readings]);
-
-  // Handle photo capture
-  const handlePhotoCapture = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setError('');
-    setOcrStatus('idle');
-
-    try {
-      const compressed = await compressImage(file);
-      setPhoto(compressed);
-
-      const preview = await fileToDataURL(compressed);
-      setPhotoPreview(preview);
-
-      // Auto-run OCR after photo is loaded
-      setTimeout(async () => {
-        setOcrStatus('processing');
-        setError('');
-
-        try {
-          const dataUrl = await fileToDataURL(compressed);
-          const result = await performOCR(dataUrl);
-
-          if (result.systolic && result.diastolic && result.pulse) {
-            // Autofill first reading with OCR results
-            const newReadings = [...readings];
-            newReadings[0] = {
-              systolic: result.systolic.toString(),
-              diastolic: result.diastolic.toString(),
-              pulse: result.pulse.toString(),
-            };
-            setReadings(newReadings);
-            setOcrStatus('success');
-          } else {
-            setOcrStatus('failed');
-            setError(t('entry.ocrFailed'));
-          }
-        } catch (err) {
-          console.error('OCR error:', err);
-          setOcrStatus('failed');
-          setError(t('entry.ocrError'));
-        }
-      }, 500);
-    } catch (err) {
-      console.error('Error compressing image:', err);
-      setError(t('entry.errors.imageError'));
-    }
-  };
-
-  // Handle OCR
-  const handleOCR = async () => {
-    if (!photo) {
-      setError(t('entry.errors.noPhoto'));
-      return;
-    }
-
-    setOcrStatus('processing');
-    setError('');
-
-    try {
-      const dataUrl = await fileToDataURL(photo);
-      const result = await performOCR(dataUrl);
-
-      if (result.systolic && result.diastolic && result.pulse) {
-        // Autofill first reading with OCR results
-        const newReadings = [...readings];
-        newReadings[0] = {
-          systolic: result.systolic.toString(),
-          diastolic: result.diastolic.toString(),
-          pulse: result.pulse.toString(),
-        };
-        setReadings(newReadings);
-        setOcrStatus('success');
-      } else {
-        setOcrStatus('failed');
-        setError(t('entry.ocrFailed'));
-      }
-    } catch (err) {
-      console.error('OCR error:', err);
-      setOcrStatus('failed');
-      setError(t('entry.ocrError'));
-    }
-  };
 
   // Add new reading
   const addReading = () => {
@@ -170,31 +74,11 @@ export function SessionEntry() {
     setSaving(true);
 
     try {
-      let photoPath = null;
-
-      // Upload photo if exists
-      if (photo) {
-        const fileName = `${crypto.randomUUID()}.jpg`;
-        const yearMonth = new Date().toISOString().slice(0, 7);
-        photoPath = `${SINGLE_USER_ID}/${yearMonth}/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('bp-photos')
-          .upload(photoPath, photo, {
-            contentType: 'image/jpeg',
-            upsert: false,
-          });
-
-        if (uploadError) {
-          throw uploadError;
-        }
-      }
-
       // Save session with readings
       await saveSession(
         {
           timestamp: new Date(sessionTime).toISOString(),
-          photoPath,
+          photoPath: null,
         },
         validReadings
       );
@@ -222,58 +106,6 @@ export function SessionEntry() {
           onChange={(e) => setSessionTime(e.target.value)}
           className="w-full px-4 py-3 rounded-xl border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20 bg-surface transition-all duration-150"
         />
-      </div>
-
-      {/* Photo Section */}
-      <div>
-        <label className="block text-sm font-medium text-text-secondary mb-2">
-          {t('entry.photo')} ({t('entry.optional')})
-        </label>
-        {!photoPreview ? (
-          <div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              capture="environment"
-              onChange={handlePhotoCapture}
-              className="hidden"
-              id="session-photo-input"
-            />
-            <label
-              htmlFor="session-photo-input"
-              className="block w-full bg-background border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer hover:border-primary transition-all duration-150"
-            >
-              <CameraIcon className="w-16 h-16 text-primary mx-auto mb-2" />
-              <div className="text-text-secondary">{t('entry.takePhoto')}</div>
-            </label>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <img
-              src={photoPreview}
-              alt="Blood pressure monitor"
-              className="w-full rounded-2xl shadow-md"
-            />
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="flex-1 px-4 py-2 bg-background rounded-lg font-medium hover:bg-surface transition-all duration-150"
-              >
-                {t('entry.retakePhoto')}
-              </button>
-              <button
-                type="button"
-                onClick={handleOCR}
-                disabled={ocrStatus === 'processing'}
-                className="flex-1 px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark active:scale-95 transition-all duration-150 disabled:opacity-50"
-              >
-                {ocrStatus === 'processing' ? t('entry.ocrProcessing') : t('entry.runOCR')}
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Readings Section */}
