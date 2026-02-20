@@ -104,8 +104,8 @@ export function BPChart({ logs }) {
                             type="button"
                             onClick={() => setRange(i)}
                             className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-150 ${range === i
-                                    ? 'bg-primary text-white shadow-sm'
-                                    : 'text-text-secondary hover:text-text'
+                                ? 'bg-primary text-white shadow-sm'
+                                : 'text-text-secondary hover:text-text'
                                 }`}
                         >
                             {r.label}
@@ -183,9 +183,20 @@ export function BPChart({ logs }) {
                     </LineChart>
                 </ResponsiveContainer>
             ) : (
-                <div className="h-[220px] flex flex-col items-center justify-center text-text-secondary text-sm gap-2">
-                    <span className="text-2xl">📈</span>
-                    <span>No data for this period</span>
+                <div className="h-[220px] flex flex-col items-center justify-center gap-3 text-text-secondary">
+                    {/* mini chart illustration */}
+                    <svg width="64" height="48" viewBox="0 0 64 48" fill="none" className="opacity-30">
+                        <polyline points="4,40 16,28 26,34 36,16 48,22 60,8" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                        <circle cx="4" cy="40" r="3" fill="currentColor" />
+                        <circle cx="16" cy="28" r="3" fill="currentColor" />
+                        <circle cx="26" cy="34" r="3" fill="currentColor" />
+                        <circle cx="36" cy="16" r="3" fill="currentColor" />
+                        <circle cx="48" cy="22" r="3" fill="currentColor" />
+                        <circle cx="60" cy="8" r="3" fill="currentColor" />
+                        <line x1="4" y1="44" x2="60" y2="44" stroke="currentColor" strokeWidth="1.5" strokeOpacity="0.4" />
+                    </svg>
+                    <span className="text-sm font-medium">No data for this period</span>
+                    <span className="text-xs opacity-60">Add readings to see your trend</span>
                 </div>
             )}
         </div>

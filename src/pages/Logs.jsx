@@ -120,7 +120,15 @@ export function Logs() {
         {/* ── Empty state ─────────────────────────────────────────────────── */}
         {logs.length === 0 ? (
           <div className="bg-surface rounded-2xl border border-border p-12 text-center space-y-4">
-            <div className="text-6xl">💓</div>
+            {/* pulse / heartbeat illustration */}
+            <div className="flex justify-center">
+              <svg width="72" height="48" viewBox="0 0 72 48" fill="none" className="text-primary opacity-40">
+                <polyline
+                  points="2,24 14,24 20,8 28,40 36,18 44,30 50,24 70,24"
+                  stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                />
+              </svg>
+            </div>
             <div>
               <p className="text-lg font-semibold text-text">{t('logs.empty')}</p>
               <p className="text-text-secondary text-sm mt-1">{t('logs.emptyDesc')}</p>
